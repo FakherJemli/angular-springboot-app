@@ -1,4 +1,3 @@
-# Generated Dockerfile — Angular (Node 18)
 FROM node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
@@ -8,5 +7,6 @@ RUN npm run build --prod
 
 FROM nginx:alpine
 COPY --from=build /app/dist/to-do-list-app-angular /usr/share/nginx/html
-EXPOSE 80
+EXPOSE 8080
+HEALTHCHECK CMD curl -f http://localhost:8080 || exit 1
 CMD ["nginx", "-g", "daemon off;"]
