@@ -18,6 +18,12 @@ jobs:
     defaults:
       run:
         working-directory: ./To-Do-List-App-SpringBoot
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: password
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +35,19 @@ jobs:
           cache: maven
           cache-dependency-path: ./To-Do-List-App-SpringBoot/pom.xml
 
+      - name: Set environment variables for MySQL
+        run: |
+          echo "MYSQL_HOST=localhost" >> $GITHUB_ENV
+          echo "MYSQL_PORT=3306" >> $GITHUB_ENV
+          echo "MYSQL_ROOT_PASSWORD=password" >> $GITHUB_ENV
+          echo "MYSQL_DATABASE=test" >> $GITHUB_ENV
+
       - name: Build (tests skipped by default)
+        env:
+          MYSQL_HOST: ${{ env.MYSQL_HOST }}
+          MYSQL_PORT: ${{ env.MYSQL_PORT }}
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
         run: mvn -B -DskipTests package
       #   mvn -B verify
 
